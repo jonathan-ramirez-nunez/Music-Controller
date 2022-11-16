@@ -1,0 +1,9 @@
+settings.py
+__pycache__/
+db.sqlite3
+node_modules
+frontend/static/frontend
+frontend/package-lock.json
+frontend/package.json
+frontend/babel.config.json
+frontend/webpack.config.js
