@@ -3,7 +3,9 @@ import RoomJoinPage from "./RoomJoinPage";
 import CreateRoomPage from "./CreateRoomPage";
 import Room from "./Room";
 import {Grid, Button, ButtonGroup, Typography } from '@mui/material';
-import { BrowserRouter as Router, Routes, Route, Link, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
+
+const apiUserInRoom = 'api/user-in-room';
 
 function HomePage() {
     // In regards to each Route: React's Router will pass some props to our 
@@ -13,20 +15,29 @@ function HomePage() {
     // us how it mathched the landing url page with the exact string given
     // in the path, e.g. path='/create'
     const [roomCode, setRoomCode] = useState(null);
+    //let navigate = useNavigate();
 
     // useEffect runs (asynchronously?) as soon as the component mounts.
     // this code will run the first time the component mounts and also
     // whenever the roomCode var changes. If you only want this inner code
     // (api request) to run once then remove roomCode from array at the end.
+
     useEffect(() =>  {
         fetch('api/user-in-room')
         .then((response) => response.json())
         .then((data) => {
+            console.log(data)
             setRoomCode(data.code)
         });
-    }, [roomCode])
+    }, []);
 
     function renderHomePage() {
+        if (roomCode) {
+            console.log(roomCode);
+            console.log(`/room/${roomCode}`);
+            return (<Navigate replace={true} to={`/room/${roomCode}`}/>);
+        }
+        //navigate(`/room/${roomCode}`);
         return (
             <Grid container spacing={3}>
                 <Grid item xs={12} align="center">
@@ -51,12 +62,10 @@ function HomePage() {
     return ( 
         <Router>
             <Routes>
-                <Route path='/' render={ () => {
-                    return roomCode ? (<Redirect to={`/room/${roomCode}`}/>) : renderHomePage() } }/>
-                {/* <Route path='/' element={renderHomePage()}></Route> */}
+                <Route path='/' element={renderHomePage()}></Route>
                 <Route path='/join' element={<RoomJoinPage />} />
                 <Route path='/create' element={<CreateRoomPage />} />
-                <Route path='/room/:roomCode' element={<Room />} />  
+                <Route path='/room/:roomCode' element={<Room />} />
             </Routes>
         </Router>
     );
