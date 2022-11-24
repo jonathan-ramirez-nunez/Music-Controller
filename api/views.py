@@ -22,7 +22,7 @@ class GetRoom(APIView):
     lookup_url_kwarg = 'code'
 
     def get(self, request, format=None):
-        code = request.GET.get(self.lookup_url_kwarg)
+        code = request.GET.get(self.lookup_url_kwarg)       # lookup the Room Code for the session and assign to 'code'
         if code != None:
             room = Room.objects.filter(code=code)
             if len(room) > 0:
@@ -97,7 +97,21 @@ class UserInRoom(APIView):
         # we will handle telling user not already in a room on the frontend
         return JsonResponse(data, status=status.HTTP_200_OK)
 
-
+class LeaveRoom(APIView):
+    def post(self, request, format=None):
+        if 'room_code' in self.request.session:
+            self.request.session.pop('room_code') # returns the room_code if needed
+            # Now check if this session's user is the host of a room
+            # If so, then remove them from said room.
+            host_id = self.request.session.session_key
+            room_results = Room.objects.filter(host=host_id)
+            if len(room_results) > 0:
+                room = room_results[0]
+                room.delete()
+                
+        # this Response will be sent regardless if the user was the host of a room or not
+        # can change this function to account for user not being a host
+        return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
 
 
 '''

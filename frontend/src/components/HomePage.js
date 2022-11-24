@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } f
 
 const apiUserInRoom = 'api/user-in-room';
 
-function HomePage() {
+function HomePage(props) {
     // In regards to each Route: React's Router will pass some props to our 
     // element e.g. RoomJoinPage, Room, etc. that will have information 
     // relating to how we got to the corresponding landing url page.
@@ -26,8 +26,8 @@ function HomePage() {
         fetch('api/user-in-room')
         .then((response) => response.json())
         .then((data) => {
-            console.log(data)
-            setRoomCode(data.code)
+            console.log(data);
+            setRoomCode(data.code);
         });
     }, []);
 
@@ -59,13 +59,23 @@ function HomePage() {
         );
     }
 
+    function clearRoomCode() {
+        // This function will be used in the Route dedicated to the Room page
+        // so that this HomePage forgets about the room code whenever we leave a room.
+        setRoomCode(null);
+    };
+
+    // passing a function (renderHomePage() for example) 
+    // as a property of a component (<Route> with () calls the function.
+    // if no parentheses, then the function is called later.
     return ( 
         <Router>
             <Routes>
                 <Route path='/' element={renderHomePage()}></Route>
                 <Route path='/join' element={<RoomJoinPage />} />
                 <Route path='/create' element={<CreateRoomPage />} />
-                <Route path='/room/:roomCode' element={<Room />} />
+                {/* <Route path='/room/:roomCode' element={<Room />} /> */}
+                <Route path='/room/:roomCode' element={<Room leaveRoomCallback={clearRoomCode}/>} />
             </Routes>
         </Router>
     );
