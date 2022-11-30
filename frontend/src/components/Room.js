@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Link, useParams, useNavigate} from "react-router-dom";
 import { Grid, Button, Typography } from '@mui/material';
+import CreateRoomPage from './CreateRoomPage';
 
 export default function Room(props){
     // we can access the leaveRoomCallback() passed as a prop from HomePage
@@ -43,9 +44,6 @@ export default function Room(props){
             navigate('/');
         });
     };
-    /* function updateShowSettings(value) {
-        setShowSettings(value);
-    }; */
     function renderSettingsButton() {
         return (
             <Grid item xs={12} align="center">
@@ -56,11 +54,34 @@ export default function Room(props){
         );
     };
 
-    function renderSettingsButton() {
-        <Grid container spacing={1}>
-            <Grid item xs={12} align="center"></Grid>
-            <Grid item xs={12} align="center"></Grid>
-        </Grid>
+    function renderSettings() {
+        // This function will render a CreateRoomPage and pass our current 
+        // Room's props. A 'Close' button will also be rendered to allow the
+        // host to close the settings version of the Room page.
+        return (
+            <Grid container spacing={1}>
+                <Grid item xs={12} align="center"></Grid>
+                    <CreateRoomPage 
+                        update={true} 
+                        votesToSkip={votesToSkip} 
+                        guestCanPause={guestCanPause} 
+                        roomCode={roomCode} 
+                        //updateCallBack={}
+                    />
+                <Grid item xs={12} align="center">
+                    <Button 
+                        variant="contained" 
+                        color="secondary" 
+                        onClick={() => setShowSettings(false)}
+                    >
+                        Close
+                    </Button>
+                </Grid>
+            </Grid>
+        );
+    };
+    if (showSettings) {
+        return renderSettings();
     }
     return (
         <Grid container spacing={1}>
@@ -100,7 +121,7 @@ export default function Room(props){
             <p>Host: {String(isHost)}</p>
         </div>
     ); */
-}
+};
 
 /*
 import {Component} from 'react';
