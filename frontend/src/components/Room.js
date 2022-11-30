@@ -7,6 +7,9 @@ export default function Room(props){
     const[votesToSkip, setVotesToSkip] = useState(2);
     const[guestCanPause, setGuestCanPause] = useState(false);
     const[isHost, setIsHost] = useState(false);
+    // For settings button shown to host to access settings page, which is
+    // a different version of this Room page.
+    const[showSettings, setShowSettings] = useState(false);
     
     const {roomCode} = useParams();
     let navigate = useNavigate();
@@ -40,6 +43,25 @@ export default function Room(props){
             navigate('/');
         });
     };
+    /* function updateShowSettings(value) {
+        setShowSettings(value);
+    }; */
+    function renderSettingsButton() {
+        return (
+            <Grid item xs={12} align="center">
+                <Button variant="contained" color="primary" onClick={() => setShowSettings(true)}>
+                    Settings
+                </Button>
+            </Grid>
+        );
+    };
+
+    function renderSettingsButton() {
+        <Grid container spacing={1}>
+            <Grid item xs={12} align="center"></Grid>
+            <Grid item xs={12} align="center"></Grid>
+        </Grid>
+    }
     return (
         <Grid container spacing={1}>
             <Grid item xs={12} align="center">
@@ -62,6 +84,7 @@ export default function Room(props){
                     Host: {String(isHost)}
                 </Typography>
             </Grid>
+            {isHost ? renderSettingsButton() : null}
             <Grid item xs={12} align="center">
                 <Button variant="contained" color="secondary" onClick={leaveButtonPressed}>
                     Leave Room

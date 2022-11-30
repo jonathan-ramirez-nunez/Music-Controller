@@ -14,3 +14,16 @@ class CreateRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ('guest_can_pause', 'votes_to_skip')
+
+class UpdateRoomSerializer(serializers.ModelSerializer):
+    '''A serializer will return an invalid response/error if it is given a 
+    field, such as 'code', that it has seen before. For this serializer, we 
+    don't want this to happen bc we will use this serializer to UPDATE an
+    existing room so we will definitely end up passing the same room 'code'
+    to this serializer. To avoid this issue, we redefine CharField inside this
+    serializer so we don't reference the CharField inside the model.
+    '''
+    code = serializers.CharField(validators=[])
+    class Meta:
+        model = Room
+        fields = ('guest_can_pause', 'votes_to_skip', 'code')

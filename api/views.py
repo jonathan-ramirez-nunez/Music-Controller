@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status # http status codes like 404
-from .serializers import RoomSerializer, CreateRoomSerializer
+from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
 from .models import Room
 from rest_framework.views import APIView # we can define a get, post, put method, etc.
 from rest_framework.response import Response # send a custom response from our view
@@ -98,6 +98,7 @@ class UserInRoom(APIView):
         return JsonResponse(data, status=status.HTTP_200_OK)
 
 class LeaveRoom(APIView):
+    # shouldn't be using a POST request
     def post(self, request, format=None):
         if 'room_code' in self.request.session:
             self.request.session.pop('room_code') # returns the room_code if needed
@@ -112,6 +113,41 @@ class LeaveRoom(APIView):
         # this Response will be sent regardless if the user was the host of a room or not
         # can change this function to account for user not being a host
         return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
+
+class UpdateRoom(APIView):
+    serializer_class = UpdateRoomSerializer
+
+    # using patch bc not deleting/creating
+    def patch(self, request, format=None):
+        # create a session if we don't have one
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            guest_can_pause = serializer.data.get('guest_can_pause')
+            votes_to_skip = serializer.data.get('votes_to_skip')
+            code = serializer.data.get('code')
+
+            queryset = Room.objects.filter(code=code)
+            if not queryset.exists(): # use .exists() instead of checking len()
+                return Response({'msg': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # a room actually exists with given room code
+            # now make sure the person attempting to update this room is the host of this room
+            # to do so, check their session key and check it against the host of the rom
+            room = queryset[0]
+            user_id = self.request.session.session_key
+            if room.host != user_id:
+                return Response({'msg':'You are not the host of this room.'}, status=status.HTTP_403_FORBIDDEN)
+
+            # a room actually exists and the user attempting an update is the host
+            room.guest_can_pause = guest_can_pause
+            room.votes_to_skip = votes_to_skip
+            room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+            return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+
+        return Response({'Bad Request' : "Invalid Data..."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 '''
