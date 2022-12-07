@@ -66,7 +66,7 @@ export default function Room(props){
                         votesToSkip={votesToSkip} 
                         guestCanPause={guestCanPause} 
                         roomCode={roomCode} 
-                        //updateCallBack={}
+                        //updateCallBack={} call this whenever the room updates
                     />
                 <Grid item xs={12} align="center">
                     <Button 
